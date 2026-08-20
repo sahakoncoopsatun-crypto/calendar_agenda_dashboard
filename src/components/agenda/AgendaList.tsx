@@ -1,6 +1,7 @@
 import React from 'react';
 import type { CalendarEvent, ViewMode } from '../../types';
 import { MapPin, Users, CalendarX, Edit, Trash2 } from 'lucide-react';
+import { formatThaiDate, formatThaiTime } from '../../utils/dateUtils';
 
 interface AgendaListProps {
   events: CalendarEvent[];
@@ -49,14 +50,12 @@ export const AgendaList: React.FC<AgendaListProps> = ({ events, viewMode, isLoad
 
   const formatTime = (dateStr?: string) => {
     if (!dateStr) return 'All Day';
-    const date = new Date(dateStr);
-    return date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    return formatThaiTime(dateStr);
   };
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    return formatThaiDate(dateStr, 'full');
   };
 
   if (viewMode === 'compact') {

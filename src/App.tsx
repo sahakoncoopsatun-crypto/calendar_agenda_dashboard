@@ -10,6 +10,7 @@ import { SettingsModal } from './components/modals/SettingsModal';
 import { useCalendarEvents } from './hooks/useCalendarEvents';
 import type { AppMode, ViewMode, CalendarEvent } from './types';
 import { ListTodo } from 'lucide-react';
+import { formatThaiDate } from './utils/dateUtils';
 
 function App() {
   // Parse URL parameters for public share mode
@@ -215,7 +216,7 @@ function App() {
                 รายงานรายการกำหนดการ
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                ระหว่างวันที่ {new Date(startDate).toLocaleDateString('th-TH')} - {new Date(endDate).toLocaleDateString('th-TH')} (พบ {filteredEvents.length} รายการ)
+                ระหว่างวันที่ {formatThaiDate(startDate, 'short')} - {formatThaiDate(endDate, 'short')} (พบ {filteredEvents.length} รายการ)
               </p>
             </div>
 

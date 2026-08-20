@@ -120,8 +120,10 @@ export const useCalendarEvents = ({
       let method = 'POST';
 
       if (eventData.id) {
-        url += `/${encodeURIComponent(eventData.id)}`;
+        url += `/${encodeURIComponent(eventData.id)}?sendUpdates=all`;
         method = 'PUT';
+      } else {
+        url += `?sendUpdates=all`;
       }
 
       const res = await fetch(url, {
@@ -151,7 +153,7 @@ export const useCalendarEvents = ({
       await fetchEvents();
     } else {
       if (!accessToken) throw new Error("No access token available.");
-      const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(id)}`;
+      const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(id)}?sendUpdates=all`;
       const res = await fetch(url, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${accessToken}` }

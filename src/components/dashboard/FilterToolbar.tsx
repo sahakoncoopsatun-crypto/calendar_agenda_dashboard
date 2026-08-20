@@ -1,8 +1,9 @@
 import React from 'react';
-import { Clock, Sparkles, Calendar, Search } from 'lucide-react';
+import { Clock, Sparkles, Calendar, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { th } from 'date-fns/locale/th';
 import 'react-datepicker/dist/react-datepicker.css';
+import { formatThaiDate } from '../../utils/dateUtils';
 
 registerLocale('th', th);
 
@@ -88,8 +89,22 @@ export const FilterToolbar: React.FC<FilterToolbarProps> = ({
                 }
               }}
               locale="th"
-              dateFormat="dd/MM/yyyy"
-              className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-800 bg-slate-50/50"
+              customInput={
+                <input 
+                  value={formatThaiDate(startDate, 'picker')} 
+                  onChange={() => {}} // dummy onChange for customInput
+                  className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-800 bg-slate-50/50"
+                />
+              }
+              renderCustomHeader={({ date, decreaseMonth, increaseMonth, prevMonthButtonDisabled, nextMonthButtonDisabled }) => (
+                <div className="flex items-center justify-between px-2 py-1">
+                  <button onClick={decreaseMonth} disabled={prevMonthButtonDisabled} className="text-slate-600 hover:text-brand-600"><ChevronLeft className="w-4 h-4" /></button>
+                  <span className="text-sm font-semibold text-slate-800">
+                    {date.toLocaleString('th-TH', { month: 'long' })} {date.getFullYear() + 543}
+                  </span>
+                  <button onClick={increaseMonth} disabled={nextMonthButtonDisabled} className="text-slate-600 hover:text-brand-600"><ChevronRight className="w-4 h-4" /></button>
+                </div>
+              )}
             />
             <Calendar className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           </div>
@@ -110,9 +125,23 @@ export const FilterToolbar: React.FC<FilterToolbarProps> = ({
                 }
               }}
               locale="th"
-              dateFormat="dd/MM/yyyy"
               minDate={new Date(startDate + 'T00:00:00')}
-              className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-800 bg-slate-50/50"
+              customInput={
+                <input 
+                  value={formatThaiDate(endDate, 'picker')} 
+                  onChange={() => {}} // dummy onChange
+                  className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-800 bg-slate-50/50"
+                />
+              }
+              renderCustomHeader={({ date, decreaseMonth, increaseMonth, prevMonthButtonDisabled, nextMonthButtonDisabled }) => (
+                <div className="flex items-center justify-between px-2 py-1">
+                  <button onClick={decreaseMonth} disabled={prevMonthButtonDisabled} className="text-slate-600 hover:text-brand-600"><ChevronLeft className="w-4 h-4" /></button>
+                  <span className="text-sm font-semibold text-slate-800">
+                    {date.toLocaleString('th-TH', { month: 'long' })} {date.getFullYear() + 543}
+                  </span>
+                  <button onClick={increaseMonth} disabled={nextMonthButtonDisabled} className="text-slate-600 hover:text-brand-600"><ChevronRight className="w-4 h-4" /></button>
+                </div>
+              )}
             />
             <Calendar className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           </div>
