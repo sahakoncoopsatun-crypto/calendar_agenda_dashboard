@@ -132,11 +132,11 @@ function App() {
 
   const handleExportCSV = () => {
     if (filteredEvents.length === 0) {
-      alert("??????????????????????? CSV");
+      alert("ไม่มีข้อมูลสำหรับส่งออก CSV");
       return;
     }
     let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-    csvContent += "?????,???????,????????,??????????????,????????????,?????????????,???????????,???????,??????????\n";
+    csvContent += "ลำดับ,ชื่องาน,หมวดหมู่,วันที่เริ่มต้น,เวลาเริ่มต้น,วันที่สิ้นสุด,เวลาสิ้นสุด,สถานที่,รายละเอียด\n";
     filteredEvents.forEach((evt, idx) => {
       const sDateStr = evt.start.dateTime || evt.start.date || new Date().toISOString();
       const eDateStr = evt.end?.dateTime || evt.end?.date || sDateStr;
@@ -167,7 +167,7 @@ function App() {
       await saveEvent(eventData);
       setIsEventModalOpen(false);
     } catch (err: any) {
-      alert("??????????????????: " + err.message);
+      alert("ไม่สามารถบันทึกได้: " + err.message);
     }
   };
 
@@ -177,7 +177,7 @@ function App() {
         await deleteEvent(deleteEventId);
         setDeleteEventId(null);
       } catch (err: any) {
-        alert("???????????: " + err.message);
+        alert("ลบไม่สำเร็จ: " + err.message);
       }
     }
   };
@@ -193,37 +193,41 @@ function App() {
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        <FilterToolbar
-          startDate={startDate}
-          endDate={endDate}
-          onStartDateChange={(d) => { setStartDate(d); setActivePreset("custom"); }}
-          onEndDateChange={(d) => { setEndDate(d); setActivePreset("custom"); }}
-          activePreset={activePreset}
-          onPresetChange={handlePresetChange}
-          searchKeyword={searchKeyword}
-          onSearchChange={setSearchKeyword}
-          category={category}
-          onCategoryChange={setCategory}
-          onGenerateAI={() => alert("??????? AI Summary ??????????????????? Backend API (?????????????????????)")}
-        />
+        <div className="no-print">
+          <FilterToolbar
+            startDate={startDate}
+            endDate={endDate}
+            onStartDateChange={(d) => { setStartDate(d); setActivePreset("custom"); }}
+            onEndDateChange={(d) => { setEndDate(d); setActivePreset("custom"); }}
+            activePreset={activePreset}
+            onPresetChange={handlePresetChange}
+            searchKeyword={searchKeyword}
+            onSearchChange={setSearchKeyword}
+            category={category}
+            onCategoryChange={setCategory}
+            onGenerateAI={() => alert("ฟีเจอร์ AI Summary จำเป็นต้องเชื่อมต่อ Backend API (รอการพัฒนาในระยะถัดไป)")}
+          />
+        </div>
 
-        <StatCards events={filteredEvents} detectCategory={detectCategory} />
+        <div className="no-print">
+          <StatCards events={filteredEvents} detectCategory={detectCategory} />
+        </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
             <div>
               <h2 className="font-bold text-slate-900 text-base flex items-center">
                 <ListTodo className="w-5 h-5 mr-2 text-brand-600" />
-                ????????????????????
+                รายงานรายการกำหนดการ
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                ????????????? {formatThaiDate(startDate, "short")} - {formatThaiDate(endDate, "short")} (?? {filteredEvents.length} ??????)
+                ระหว่างวันที่ {formatThaiDate(startDate, "short")} - {formatThaiDate(endDate, "short")} (พบ {filteredEvents.length} รายการ)
               </p>
             </div>
 
             <div className="flex items-center space-x-1 bg-slate-200/60 p-1 rounded-xl text-xs font-medium no-print">
-              <button onClick={() => setViewMode("detailed")} className={"px-3 py-1 rounded-lg transition-all " + (viewMode === "detailed" ? "text-slate-800 bg-white shadow-sm" : "text-slate-600 hover:text-slate-800")}>?????????????</button>
-              <button onClick={() => setViewMode("compact")} className={"px-3 py-1 rounded-lg transition-all " + (viewMode === "compact" ? "text-slate-800 bg-white shadow-sm" : "text-slate-600 hover:text-slate-800")}>?????????????</button>
+              <button onClick={() => setViewMode("detailed")} className={"px-3 py-1 rounded-lg transition-all " + (viewMode === "detailed" ? "text-slate-800 bg-white shadow-sm" : "text-slate-600 hover:text-slate-800")}>รายการละเอียด</button>
+              <button onClick={() => setViewMode("compact")} className={"px-3 py-1 rounded-lg transition-all " + (viewMode === "compact" ? "text-slate-800 bg-white shadow-sm" : "text-slate-600 hover:text-slate-800")}>ตารางกะทัดรัด</button>
             </div>
           </div>
 
@@ -249,8 +253,8 @@ function App() {
 
       <footer className="mt-auto bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400 no-print">
         <div className="max-w-7xl mx-auto px-4">
-          <p>??????????????????????????? Google Calendar Auto-Report &amp; Agenda Dashboard</p>
-          <p className="mt-1 font-medium text-slate-500">????????: ???? ?????? ?. ?????????????????</p>
+          <p>ระบบแจ้งเตือนรายงานกำหนดการ Google Calendar Auto-Report &amp; Agenda Dashboard</p>
+          <p className="mt-1 font-medium text-slate-500">พัฒนาโดย: ชื่อ ดำรงค์ ห. เจ้าหน้าที่ธุรการ</p>
         </div>
       </footer>
 
