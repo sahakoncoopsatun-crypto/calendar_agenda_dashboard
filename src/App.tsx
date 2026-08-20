@@ -241,6 +241,8 @@ function App() {
             onDelete={(id) => setDeleteEventId(id)}
             detectCategory={detectCategory}
             isPublicView={isPublicView}
+            startDate={startDate}
+            endDate={endDate}
           />
         </div>
       </main>
