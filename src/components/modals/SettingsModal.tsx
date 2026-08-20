@@ -93,7 +93,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, m
                 <input 
                   type="text" 
                   value={calendarId}
-                  onChange={e => setCalendarId(e.target.value)}
+                  onChange={e => {
+                    setCalendarId(e.target.value);
+                    localStorage.setItem('gcal_public_id', e.target.value);
+                  }}
                   placeholder="เช่น id@group.calendar.google.com" 
                   className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 text-slate-800"
                 />
@@ -104,7 +107,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, m
                 <input 
                   type="password" 
                   value={apiKey}
-                  onChange={e => setApiKey(e.target.value)}
+                  onChange={e => {
+                    setApiKey(e.target.value);
+                    localStorage.setItem('gcal_public_key', e.target.value);
+                  }}
                   placeholder="AIzaSy..." 
                   className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 text-slate-800"
                 />
