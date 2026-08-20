@@ -25,6 +25,9 @@ export const useCalendarEvents = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const startMs = startDate.getTime();
+  const endMs = endDate.getTime();
+
   const fetchEvents = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -92,7 +95,7 @@ export const useCalendarEvents = ({
         setIsLoading(false);
       }
     }
-  }, [mode, startDate, endDate, accessToken, isPublicView, publicCalId, publicApiKey]);
+  }, [mode, startMs, endMs, accessToken, isPublicView, publicCalId, publicApiKey]);
 
   useEffect(() => {
     fetchEvents();
