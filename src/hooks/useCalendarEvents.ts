@@ -2,7 +2,25 @@ import { useState, useEffect, useCallback } from 'react';
 import type { CalendarEvent, AppMode } from '../types';
 import { getStoredDemoEvents, saveDemoEventsToStorage } from '../services/mockData';
 
-export const useCalendarEvents = (mode: AppMode, startDate: Date, endDate: Date, accessToken?: string) => {
+interface UseCalendarEventsOptions {
+  mode: AppMode;
+  startDate: Date;
+  endDate: Date;
+  accessToken?: string;
+  isPublicView?: boolean;
+  publicCalId?: string;
+  publicApiKey?: string;
+}
+
+export const useCalendarEvents = ({
+  mode,
+  startDate,
+  endDate,
+  accessToken,
+  isPublicView = false,
+  publicCalId = '',
+  publicApiKey = ''
+}: UseCalendarEventsOptions) => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,6 +39,30 @@ export const useCalendarEvents = (mode: AppMode, startDate: Date, endDate: Date,
         setEvents(filtered);
         setIsLoading(false);
       }, 300);
+    } else if (isPublicView) {
+      if (!publicCalId || !publicApiKey) {
+        setEvents([]);
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const timeMin = startDate.toISOString();
+        const timeMax = endDate.toISOString();
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(publicCalId)}/events?key=${publicApiKey}&timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime`;
+
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`Public API Error: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        setEvents(data.items || []);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
     } else {
       if (!accessToken) {
         setEvents([]);
@@ -50,13 +92,15 @@ export const useCalendarEvents = (mode: AppMode, startDate: Date, endDate: Date,
         setIsLoading(false);
       }
     }
-  }, [mode, startDate, endDate, accessToken]);
+  }, [mode, startDate, endDate, accessToken, isPublicView, publicCalId, publicApiKey]);
 
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
 
   const saveEvent = async (eventData: Partial<CalendarEvent>) => {
+    if (isPublicView) throw new Error("Cannot save events in public view.");
+    
     if (mode === 'DEMO') {
       let storedEvents = getStoredDemoEvents();
       if (eventData.id) {
@@ -95,6 +139,8 @@ export const useCalendarEvents = (mode: AppMode, startDate: Date, endDate: Date,
   };
 
   const deleteEvent = async (id: string) => {
+    if (isPublicView) throw new Error("Cannot delete events in public view.");
+
     if (mode === 'DEMO') {
       let storedEvents = getStoredDemoEvents();
       storedEvents = storedEvents.filter(e => e.id !== id);

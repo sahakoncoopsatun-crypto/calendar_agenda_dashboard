@@ -9,9 +9,10 @@ interface AgendaListProps {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   detectCategory: (evt: CalendarEvent) => string;
+  isPublicView?: boolean;
 }
 
-export const AgendaList: React.FC<AgendaListProps> = ({ events, viewMode, isLoading, onEdit, onDelete, detectCategory }) => {
+export const AgendaList: React.FC<AgendaListProps> = ({ events, viewMode, isLoading, onEdit, onDelete, detectCategory, isPublicView = false }) => {
   if (isLoading) {
     return (
       <div className="py-16 text-center">
@@ -69,7 +70,7 @@ export const AgendaList: React.FC<AgendaListProps> = ({ events, viewMode, isLoad
               <th className="py-3 px-4">หมวดหมู่</th>
               <th className="py-3 px-4">สถานที่</th>
               <th className="py-3 px-4">ผู้เข้าร่วม</th>
-              <th className="py-3 px-4 text-center no-print">จัดการ</th>
+              {!isPublicView && <th className="py-3 px-4 text-center no-print">จัดการ</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -102,16 +103,18 @@ export const AgendaList: React.FC<AgendaListProps> = ({ events, viewMode, isLoad
                     </div>
                   ) : '-'}
                 </td>
-                <td className="py-3 px-4 text-center no-print">
-                  <div className="flex justify-center space-x-1">
-                    <button onClick={() => onEdit(evt.id)} className="p-1 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded transition-colors">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => onDelete(evt.id)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
+                {!isPublicView && (
+                  <td className="py-3 px-4 text-center no-print">
+                    <div className="flex justify-center space-x-1">
+                      <button onClick={() => onEdit(evt.id)} className="p-1 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded transition-colors">
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => onDelete(evt.id)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -182,14 +185,16 @@ export const AgendaList: React.FC<AgendaListProps> = ({ events, viewMode, isLoad
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center space-x-2 sm:opacity-0 group-hover:opacity-100 transition-opacity self-end sm:self-start mt-2 sm:mt-0 no-print border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0 w-full sm:w-auto justify-end">
-                  <button onClick={() => onEdit(evt.id)} className="px-2 py-1 text-xs font-medium text-slate-600 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 border border-slate-200 hover:border-brand-200 rounded-md transition-colors flex items-center">
-                    <Edit className="w-3 h-3 mr-1" /> แก้ไข
-                  </button>
-                  <button onClick={() => onDelete(evt.id)} className="px-2 py-1 text-xs font-medium text-slate-600 hover:text-red-600 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 rounded-md transition-colors flex items-center">
-                    <Trash2 className="w-3 h-3 mr-1" /> ลบ
-                  </button>
-                </div>
+                {!isPublicView && (
+                  <div className="flex items-center space-x-2 sm:opacity-0 group-hover:opacity-100 transition-opacity self-end sm:self-start mt-2 sm:mt-0 no-print border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0 w-full sm:w-auto justify-end">
+                    <button onClick={() => onEdit(evt.id)} className="px-2 py-1 text-xs font-medium text-slate-600 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 border border-slate-200 hover:border-brand-200 rounded-md transition-colors flex items-center">
+                      <Edit className="w-3 h-3 mr-1" /> แก้ไข
+                    </button>
+                    <button onClick={() => onDelete(evt.id)} className="px-2 py-1 text-xs font-medium text-slate-600 hover:text-red-600 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 rounded-md transition-colors flex items-center">
+                      <Trash2 className="w-3 h-3 mr-1" /> ลบ
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>

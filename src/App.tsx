@@ -12,7 +12,13 @@ import type { AppMode, ViewMode, CalendarEvent } from './types';
 import { ListTodo } from 'lucide-react';
 
 function App() {
-  const [mode, setMode] = useState<AppMode>('DEMO');
+  // Parse URL parameters for public share mode
+  const searchParams = useMemo(() => new URLSearchParams(window.location.search), []);
+  const isPublicView = searchParams.get('share') === '1';
+  const publicCalId = searchParams.get('calId') || '';
+  const publicApiKey = searchParams.get('key') || '';
+
+  const [mode, setMode] = useState<AppMode>(isPublicView ? 'API' : 'DEMO');
   const [accessToken, setAccessToken] = useState<string>('');
   
   // Date State
@@ -42,12 +48,15 @@ function App() {
   const [deleteEventId, setDeleteEventId] = useState<string | null>(null);
 
   // Hook for Events
-  const { events, isLoading, saveEvent, deleteEvent } = useCalendarEvents(
+  const { events, isLoading, saveEvent, deleteEvent } = useCalendarEvents({
     mode, 
-    new Date(startDate + 'T00:00:00'), 
-    new Date(endDate + 'T23:59:59'), 
-    accessToken
-  );
+    startDate: new Date(startDate + 'T00:00:00'), 
+    endDate: new Date(endDate + 'T23:59:59'), 
+    accessToken,
+    isPublicView,
+    publicCalId,
+    publicApiKey
+  });
 
   const login = useGoogleLogin({
     onSuccess: (tokenResponse) => {
@@ -58,10 +67,10 @@ function App() {
   });
 
   const handleModeChange = (newMode: AppMode) => {
+    if (isPublicView) return; // Prevent mode change in public view
+    setMode(newMode);
     if (newMode === 'API' && !accessToken) {
       login();
-    } else {
-      setMode(newMode);
     }
   };
 
@@ -178,6 +187,7 @@ function App() {
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenAddEvent={() => { setEditingEvent(null); setIsEventModalOpen(true); }}
         onExportCSV={handleExportCSV}
+        isPublicView={isPublicView}
       />
       
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
@@ -228,6 +238,7 @@ function App() {
             }}
             onDelete={(id) => setDeleteEventId(id)}
             detectCategory={detectCategory}
+            isPublicView={isPublicView}
           />
         </div>
       </main>
