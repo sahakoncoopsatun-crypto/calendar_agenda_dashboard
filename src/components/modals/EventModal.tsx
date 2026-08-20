@@ -56,6 +56,10 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (start >= end) {
+      alert('วัน-เวลาเริ่มต้นต้องมาก่อนวัน-เวลาสิ้นสุด');
+      return;
+    }
     const attendeeList = attendees ? attendees.split(',').map(email => ({ email: email.trim() })).filter(a => a.email) : [];
     
     onSave({
@@ -107,7 +111,14 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
               <div className="relative">
                 <DatePicker
                   selected={start}
-                  onChange={(date: Date | null) => date && setStart(date)}
+                  onChange={(date: Date | null) => {
+                    if (date) {
+                      setStart(date);
+                      if (date >= end) {
+                        setEnd(new Date(date.getTime() + 60 * 60 * 1000));
+                      }
+                    }
+                  }}
                   showTimeSelect
                   timeFormat="HH:mm"
                   timeIntervals={15}
