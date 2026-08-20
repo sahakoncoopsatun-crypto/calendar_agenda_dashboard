@@ -1,5 +1,10 @@
 import React from 'react';
 import { Clock, Sparkles, Calendar, Search } from 'lucide-react';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import { th } from 'date-fns/locale/th';
+import 'react-datepicker/dist/react-datepicker.css';
+
+registerLocale('th', th);
 
 interface FilterToolbarProps {
   startDate: string;
@@ -72,11 +77,19 @@ export const FilterToolbar: React.FC<FilterToolbarProps> = ({
         <div className="lg:col-span-3">
           <label className="block text-xs font-medium text-slate-500 mb-1">วันที่เริ่มต้น</label>
           <div className="relative">
-            <input 
-              type="date" 
-              value={startDate}
-              onChange={(e) => onStartDateChange(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-800 bg-slate-50/50" 
+            <DatePicker
+              selected={new Date(startDate + 'T00:00:00')}
+              onChange={(date: Date | null) => {
+                if (date) {
+                  const y = date.getFullYear();
+                  const m = String(date.getMonth() + 1).padStart(2, '0');
+                  const d = String(date.getDate()).padStart(2, '0');
+                  onStartDateChange(`${y}-${m}-${d}`);
+                }
+              }}
+              locale="th"
+              dateFormat="dd/MM/yyyy"
+              className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-800 bg-slate-50/50"
             />
             <Calendar className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           </div>
@@ -86,11 +99,20 @@ export const FilterToolbar: React.FC<FilterToolbarProps> = ({
         <div className="lg:col-span-3">
           <label className="block text-xs font-medium text-slate-500 mb-1">วันที่สิ้นสุด</label>
           <div className="relative">
-            <input 
-              type="date" 
-              value={endDate}
-              onChange={(e) => onEndDateChange(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-800 bg-slate-50/50" 
+            <DatePicker
+              selected={new Date(endDate + 'T00:00:00')}
+              onChange={(date: Date | null) => {
+                if (date) {
+                  const y = date.getFullYear();
+                  const m = String(date.getMonth() + 1).padStart(2, '0');
+                  const d = String(date.getDate()).padStart(2, '0');
+                  onEndDateChange(`${y}-${m}-${d}`);
+                }
+              }}
+              locale="th"
+              dateFormat="dd/MM/yyyy"
+              minDate={new Date(startDate + 'T00:00:00')}
+              className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-slate-800 bg-slate-50/50"
             />
             <Calendar className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           </div>
