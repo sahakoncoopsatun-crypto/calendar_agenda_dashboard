@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { CalendarPlus, X } from 'lucide-react';
+import { CalendarPlus, X, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import { th } from 'date-fns/locale/th';
+import 'react-datepicker/dist/react-datepicker.css';
+import { formatThaiDate, formatThaiTime } from '../../utils/dateUtils';
 import type { CalendarEvent } from '../../types';
+
+registerLocale('th', th);
 
 interface EventModalProps {
   isOpen: boolean;
@@ -12,8 +18,8 @@ interface EventModalProps {
 export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave, initialData }) => {
   const [summary, setSummary] = useState('');
   const [category, setCategory] = useState('Meeting');
-  const [start, setStart] = useState('');
-  const [end, setEnd] = useState('');
+  const [start, setStart] = useState<Date>(new Date());
+  const [end, setEnd] = useState<Date>(new Date());
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
   const [attendees, setAttendees] = useState('');
@@ -27,8 +33,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         const sDate = new Date(initialData.start.dateTime || initialData.start.date || new Date().toISOString());
         const eDate = new Date(initialData.end?.dateTime || initialData.end?.date || sDate.toISOString());
         
-        setStart(formatDateTimeLocal(sDate));
-        setEnd(formatDateTimeLocal(eDate));
+        setStart(sDate);
+        setEnd(eDate);
         setLocation(initialData.location || '');
         setDescription(initialData.description || '');
         setAttendees(initialData.attendees ? initialData.attendees.map(a => a.email).join(', ') : '');
@@ -37,8 +43,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         const nextHour = new Date(now.getTime() + 60 * 60 * 1000);
         setSummary('');
         setCategory('Meeting');
-        setStart(formatDateTimeLocal(now));
-        setEnd(formatDateTimeLocal(nextHour));
+        setStart(now);
+        setEnd(nextHour);
         setLocation('');
         setDescription('');
         setAttendees('');
@@ -48,11 +54,6 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
   if (!isOpen) return null;
 
-  const formatDateTimeLocal = (date: Date) => {
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const attendeeList = attendees ? attendees.split(',').map(email => ({ email: email.trim() })).filter(a => a.email) : [];
@@ -61,8 +62,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
       id: initialData?.id,
       summary,
       category,
-      start: { dateTime: new Date(start).toISOString() },
-      end: { dateTime: new Date(end).toISOString() },
+      start: { dateTime: start.toISOString() },
+      end: { dateTime: end.toISOString() },
       location,
       description,
       attendees: attendeeList
@@ -103,11 +104,66 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">วัน-เวลา เริ่มต้น <span className="text-red-500">*</span></label>
-              <input type="datetime-local" required value={start} onChange={(e) => setStart(e.target.value)} className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 text-slate-800" />
+              <div className="relative">
+                <DatePicker
+                  selected={start}
+                  onChange={(date: Date | null) => date && setStart(date)}
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  dateFormat="P p"
+                  locale="th"
+                  customInput={
+                    <input 
+                      value={`${formatThaiDate(start, 'picker')} ${formatThaiTime(start)}`}
+                      onChange={() => {}}
+                      className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 text-slate-800 bg-white cursor-pointer"
+                    />
+                  }
+                  renderCustomHeader={({ date, decreaseMonth, increaseMonth, prevMonthButtonDisabled, nextMonthButtonDisabled }) => (
+                    <div className="flex items-center justify-between px-2 py-1">
+                      <button type="button" onClick={decreaseMonth} disabled={prevMonthButtonDisabled} className="text-slate-600 hover:text-brand-600"><ChevronLeft className="w-4 h-4" /></button>
+                      <span className="text-sm font-semibold text-slate-800">
+                        {date.toLocaleString('th-TH', { month: 'long' })} {date.getFullYear() + 543}
+                      </span>
+                      <button type="button" onClick={increaseMonth} disabled={nextMonthButtonDisabled} className="text-slate-600 hover:text-brand-600"><ChevronRight className="w-4 h-4" /></button>
+                    </div>
+                  )}
+                />
+                <CalendarIcon className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
+              </div>
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">วัน-เวลา สิ้นสุด <span className="text-red-500">*</span></label>
-              <input type="datetime-local" required value={end} onChange={(e) => setEnd(e.target.value)} className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 text-slate-800" />
+              <div className="relative">
+                <DatePicker
+                  selected={end}
+                  onChange={(date: Date | null) => date && setEnd(date)}
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  dateFormat="P p"
+                  locale="th"
+                  minDate={start}
+                  customInput={
+                    <input 
+                      value={`${formatThaiDate(end, 'picker')} ${formatThaiTime(end)}`}
+                      onChange={() => {}}
+                      className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 text-slate-800 bg-white cursor-pointer"
+                    />
+                  }
+                  renderCustomHeader={({ date, decreaseMonth, increaseMonth, prevMonthButtonDisabled, nextMonthButtonDisabled }) => (
+                    <div className="flex items-center justify-between px-2 py-1">
+                      <button type="button" onClick={decreaseMonth} disabled={prevMonthButtonDisabled} className="text-slate-600 hover:text-brand-600"><ChevronLeft className="w-4 h-4" /></button>
+                      <span className="text-sm font-semibold text-slate-800">
+                        {date.toLocaleString('th-TH', { month: 'long' })} {date.getFullYear() + 543}
+                      </span>
+                      <button type="button" onClick={increaseMonth} disabled={nextMonthButtonDisabled} className="text-slate-600 hover:text-brand-600"><ChevronRight className="w-4 h-4" /></button>
+                    </div>
+                  )}
+                />
+                <CalendarIcon className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
+              </div>
             </div>
           </div>
 
