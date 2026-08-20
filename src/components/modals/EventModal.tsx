@@ -122,6 +122,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                   showTimeSelect
                   timeFormat="HH:mm"
                   timeIntervals={15}
+                  timeCaption="เวลา"
                   dateFormat="P p"
                   locale="th"
                   customInput={
@@ -153,6 +154,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                   showTimeSelect
                   timeFormat="HH:mm"
                   timeIntervals={15}
+                  timeCaption="เวลา"
                   dateFormat="P p"
                   locale="th"
                   minDate={start}

@@ -39,7 +39,10 @@ export const FilterToolbar: React.FC<FilterToolbarProps> = ({
     { id: 'thisWeek', label: 'สัปดาห์นี้' },
     { id: 'next7', label: '7 วันข้างหน้า' },
     { id: 'thisMonth', label: 'เดือนนี้' },
-    { id: 'next30', label: '30 วันข้างหน้า' },
+    { id: 'next30', label: '30 วัน' },
+    { id: 'next90', label: '3 เดือน' },
+    { id: 'next180', label: '6 เดือน' },
+    { id: 'next365', label: '1 ปี' },
   ];
 
   return (
