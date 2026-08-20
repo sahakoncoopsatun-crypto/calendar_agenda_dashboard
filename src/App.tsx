@@ -19,7 +19,11 @@ function App() {
   const publicCalId = searchParams.get('calId') || '';
   const publicApiKey = searchParams.get('key') || '';
 
-  const [mode, setMode] = useState<AppMode>(isPublicView ? 'API' : 'DEMO');
+  const [mode, setMode] = useState<AppMode>(() => {
+    if (isPublicView) return 'API';
+    const saved = localStorage.getItem('agenda_app_mode');
+    return (saved === 'API' || saved === 'DEMO') ? saved : 'DEMO';
+  });
   const [accessToken, setAccessToken] = useState<string>('');
   
   // Date State
@@ -70,6 +74,7 @@ function App() {
   const handleModeChange = (newMode: AppMode) => {
     if (isPublicView) return; // Prevent mode change in public view
     setMode(newMode);
+    localStorage.setItem('agenda_app_mode', newMode);
     if (newMode === 'API' && !accessToken) {
       login();
     }
@@ -137,16 +142,16 @@ function App() {
     let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
     csvContent += "ลำดับ,ชื่องาน,หมวดหมู่,วันที่เริ่มต้น,เวลาเริ่มต้น,วันที่สิ้นสุด,เวลาสิ้นสุด,สถานที่,รายละเอียด\n";
     filteredEvents.forEach((evt, idx) => {
-      const sDate = new Date(evt.start.dateTime || evt.start.date || new Date().toISOString());
-      const eDate = new Date(evt.end?.dateTime || evt.end?.date || sDate.toISOString());
+      const sDateStr = evt.start.dateTime || evt.start.date || new Date().toISOString();
+      const eDateStr = evt.end?.dateTime || evt.end?.date || sDateStr;
       const row = [
         idx + 1,
         `"${(evt.summary || '').replace(/"/g, '""')}"`,
         evt.category || detectCategory(evt),
-        sDate.toLocaleDateString('th-TH'),
-        sDate.toLocaleTimeString('th-TH'),
-        eDate.toLocaleDateString('th-TH'),
-        eDate.toLocaleTimeString('th-TH'),
+        formatThaiDate(sDateStr, 'picker'),
+        new Date(sDateStr).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+        formatThaiDate(eDateStr, 'picker'),
+        new Date(eDateStr).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
         `"${(evt.location || '').replace(/"/g, '""')}"`,
         `"${(evt.description || '').replace(/"/g, '""')}"`
       ];
@@ -221,6 +226,7 @@ function App() {
             </div>
 
             <div className="flex items-center space-x-1 bg-slate-200/60 p-1 rounded-xl text-xs font-medium no-print">
+
               <button onClick={() => setViewMode('detailed')} className={`px-3 py-1 rounded-lg transition-all ${viewMode === 'detailed' ? 'text-slate-800 bg-white shadow-sm' : 'text-slate-600 hover:text-slate-800'}`}>รายการละเอียด</button>
               <button onClick={() => setViewMode('compact')} className={`px-3 py-1 rounded-lg transition-all ${viewMode === 'compact' ? 'text-slate-800 bg-white shadow-sm' : 'text-slate-600 hover:text-slate-800'}`}>ตารางกะทัดรัด</button>
             </div>
@@ -246,7 +252,8 @@ function App() {
 
       <footer className="mt-auto bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400 no-print">
         <div className="max-w-7xl mx-auto px-4">
-          <p>ระบบรายงานและแสดงผลกำหนดการ Google Calendar Auto-Report & Agenda Dashboard</p>
+          <p>ระบบแจ้งเตือนรายงานกำหนดการ Google Calendar Auto-Report & Agenda Dashboard</p>
+          <p className="mt-1 font-medium text-slate-500">พัฒนาโดย: ชื่อ ดำรงค์ ห. เจ้าหน้าที่ธุรการ</p>
         </div>
       </footer>
 
